@@ -40,10 +40,10 @@ using namespace std;
 namespace ORB_SLAM3
 {
 
-
+// Changed Initializaition of mbVO to true for VO mode
 Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer, MapDrawer *pMapDrawer, Atlas *pAtlas, KeyFrameDatabase* pKFDB, const string &strSettingPath, const int sensor, Settings* settings, const string &_nameSeq):
     mState(NO_IMAGES_YET), mSensor(sensor), mTrackedFr(0), mbStep(false),
-    mbOnlyTracking(false), mbMapUpdated(false), mbVO(false), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB),
+    mbOnlyTracking(false), mbMapUpdated(false), mbVO(true), mpORBVocabulary(pVoc), mpKeyFrameDB(pKFDB),
     mbReadyToInitializate(false), mpSystem(pSys), mpViewer(NULL), bStepByStep(false),
     mpFrameDrawer(pFrameDrawer), mpMapDrawer(pMapDrawer), mpAtlas(pAtlas), mnLastRelocFrameId(0), time_recently_lost(5.0),
     mnInitialFrameId(0), mbCreatedMap(false), mnFirstFrameId(0), mpCamera2(nullptr), mpLastKeyFrame(static_cast<KeyFrame*>(NULL))
@@ -1862,6 +1862,7 @@ void Tracking::Track()
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
+        cout << "mState: No images yet -> Not Initlialized" << endl;
     }
 
     mLastProcessedState=mState;
@@ -1900,6 +1901,7 @@ void Tracking::Track()
     {
         if(mSensor==System::STEREO || mSensor==System::RGBD || mSensor==System::IMU_STEREO || mSensor==System::IMU_RGBD)
         {
+            // cout << "Performing Stereo Initlization" << endl;
             StereoInitialization();
         }
         else
@@ -1911,6 +1913,7 @@ void Tracking::Track()
 
         if(mState!=OK) // If rightly initialized, mState=OK
         {
+            // cout << "Not correctly initialized, mState is not OK" << endl;
             mLastFrame = Frame(mCurrentFrame);
             return;
         }
@@ -2035,29 +2038,38 @@ void Tracking::Track()
         }
         else
         {
+            // cout << "Localization Mode, mbOnlyTracking is true" << endl;
             // Localization Mode: Local Mapping is deactivated (TODO Not available in inertial mode)
             if(mState==LOST)
             {
                 if(mSensor == System::IMU_MONOCULAR || mSensor == System::IMU_STEREO || mSensor == System::IMU_RGBD)
                     Verbose::PrintMess("IMU. State LOST", Verbose::VERBOSITY_NORMAL);
+
+                // cout << "mState is lost, performing Localization" << endl;
                 bOK = Relocalization();
             }
             else
             {
+                // cout << "mState is not lost" << endl;
                 if(!mbVO)
-                {
+                {   
+                    // cout << "mbVO is false" << endl;
                     // In last frame we tracked enough MapPoints in the map
                     if(mbVelocity)
-                    {
+                    {   
+                        // cout << "mbVelocity is true, tracking with motion model" << endl;
                         bOK = TrackWithMotionModel();
                     }
                     else
-                    {
+                    {   
+                        // cout << "mbVelocity is false, tracking with reference keyframe" << endl;
                         bOK = TrackReferenceKeyFrame();
                     }
                 }
                 else
                 {
+                    // cout << "mbVO is true" << endl;
+
                     // In last frame we tracked mainly "visual odometry" points.
 
                     // We compute two camera poses, one from motion model and one doing relocalization.
@@ -2069,8 +2081,10 @@ void Tracking::Track()
                     vector<MapPoint*> vpMPsMM;
                     vector<bool> vbOutMM;
                     Sophus::SE3f TcwMM;
+                    // mbVelocity = true; // ENFORCING THIS
                     if(mbVelocity)
                     {
+                        cout << "mbVelocity is True, tracking with motion model" << endl;
                         bOKMM = TrackWithMotionModel();
                         vpMPsMM = mCurrentFrame.mvpMapPoints;
                         vbOutMM = mCurrentFrame.mvbOutlier;
@@ -2080,6 +2094,7 @@ void Tracking::Track()
 
                     if(bOKMM && !bOKReloc)
                     {
+                        // cout << "bOKMM is true and bOKReloc is false" << endl;
                         mCurrentFrame.SetPose(TcwMM);
                         mCurrentFrame.mvpMapPoints = vpMPsMM;
                         mCurrentFrame.mvbOutlier = vbOutMM;
@@ -2098,6 +2113,7 @@ void Tracking::Track()
                     else if(bOKReloc)
                     {
                         mbVO = false;
+                        // cout << "bOKReloc is true, mbVO is set to False" << endl;
                     }
 
                     bOK = bOKReloc || bOKMM;
@@ -2204,14 +2220,22 @@ void Tracking::Track()
 
         if(bOK || mState==RECENTLY_LOST)
         {
+            // cout << "bOK and RECENTLY_LOST" << endl;
             // Update motion model
             if(mLastFrame.isSet() && mCurrentFrame.isSet())
             {
+                // cout << "mLastFrame and mCurrentFrame are set" << endl;
                 Sophus::SE3f LastTwc = mLastFrame.GetPose().inverse();
                 mVelocity = mCurrentFrame.GetPose() * LastTwc;
                 mbVelocity = true;
             }
+            else if (mbVO && !mbVelocity) // mbVO init to be True and mbVelocity init to be False
+            {
+                cout << "mbVO and not mbVelocity: VO Edit" << endl;
+                mbVelocity = true;
+            }
             else {
+                // cout << "mLastFrame and mCurrentFrame are not set" << endl;
                 mbVelocity = false;
             }
 
@@ -2292,6 +2316,7 @@ void Tracking::Track()
             mCurrentFrame.mpReferenceKF = mpReferenceKF;
 
         mLastFrame = Frame(mCurrentFrame);
+        // cout << "mLastFrame is set to mCurrentFrame" << endl;
     }
 
 
