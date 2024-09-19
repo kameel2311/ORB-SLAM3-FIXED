@@ -2084,7 +2084,7 @@ void Tracking::Track()
                     // mbVelocity = true; // ENFORCING THIS
                     if(mbVelocity)
                     {
-                        cout << "mbVelocity is True, tracking with motion model" << endl;
+                        // cout << "mbVelocity is True, tracking with motion model" << endl;
                         bOKMM = TrackWithMotionModel();
                         vpMPsMM = mCurrentFrame.mvpMapPoints;
                         vbOutMM = mCurrentFrame.mvbOutlier;
