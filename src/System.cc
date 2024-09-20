@@ -43,28 +43,28 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     mSensor(sensor), mpViewer(static_cast<Viewer*>(NULL)), mbReset(false), mbResetActiveMap(false),
     mbActivateLocalizationMode(false), mbDeactivateLocalizationMode(false), mbShutDown(false)
 {
-    // Output welcome message
-    cout << endl <<
-    "ORB-SLAM3 Copyright (C) 2017-2020 Carlos Campos, Richard Elvira, Juan J. Gómez, José M.M. Montiel and Juan D. Tardós, University of Zaragoza." << endl <<
-    "ORB-SLAM2 Copyright (C) 2014-2016 Raúl Mur-Artal, José M.M. Montiel and Juan D. Tardós, University of Zaragoza." << endl <<
-    "This program comes with ABSOLUTELY NO WARRANTY;" << endl  <<
-    "This is free software, and you are welcome to redistribute it" << endl <<
-    "under certain conditions. See LICENSE.txt." << endl << endl;
+    // // Output welcome message
+    // cout << endl <<
+    // "ORB-SLAM3 Copyright (C) 2017-2020 Carlos Campos, Richard Elvira, Juan J. Gómez, José M.M. Montiel and Juan D. Tardós, University of Zaragoza." << endl <<
+    // "ORB-SLAM2 Copyright (C) 2014-2016 Raúl Mur-Artal, José M.M. Montiel and Juan D. Tardós, University of Zaragoza." << endl <<
+    // "This program comes with ABSOLUTELY NO WARRANTY;" << endl  <<
+    // "This is free software, and you are welcome to redistribute it" << endl <<
+    // "under certain conditions. See LICENSE.txt." << endl << endl;
 
-    cout << "Input sensor was set to: ";
+    // cout << "Input sensor was set to: ";
 
-    if(mSensor==MONOCULAR)
-        cout << "Monocular" << endl;
-    else if(mSensor==STEREO)
-        cout << "Stereo" << endl;
-    else if(mSensor==RGBD)
-        cout << "RGB-D" << endl;
-    else if(mSensor==IMU_MONOCULAR)
-        cout << "Monocular-Inertial" << endl;
-    else if(mSensor==IMU_STEREO)
-        cout << "Stereo-Inertial" << endl;
-    else if(mSensor==IMU_RGBD)
-        cout << "RGB-D-Inertial" << endl;
+    // if(mSensor==MONOCULAR)
+    //     cout << "Monocular" << endl;
+    // else if(mSensor==STEREO)
+    //     cout << "Stereo" << endl;
+    // else if(mSensor==RGBD)
+    //     cout << "RGB-D" << endl;
+    // else if(mSensor==IMU_MONOCULAR)
+    //     cout << "Monocular-Inertial" << endl;
+    // else if(mSensor==IMU_STEREO)
+    //     cout << "Stereo-Inertial" << endl;
+    // else if(mSensor==IMU_RGBD)
+    //     cout << "RGB-D-Inertial" << endl;
 
     //Check settings file
     cv::FileStorage fsSettings(strSettingsFile.c_str(), cv::FileStorage::READ);
@@ -81,7 +81,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         mStrLoadAtlasFromFile = settings_->atlasLoadFile();
         mStrSaveAtlasToFile = settings_->atlasSaveFile();
 
-        cout << (*settings_) << endl;
+        // cout << (*settings_) << endl;
     }
     else{
         settings_ = nullptr;
@@ -112,7 +112,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
     if(mStrLoadAtlasFromFile.empty())
     {
         //Load ORB Vocabulary
-        cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
+        // cout << endl << "Loading ORB Vocabulary. This could take a while..." << endl;
 
         mpVocabulary = new ORBVocabulary();
         bool bVocLoad = mpVocabulary->loadFromTextFile(strVocFile);
@@ -128,7 +128,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
         mpKeyFrameDatabase = new KeyFrameDatabase(*mpVocabulary);
 
         //Create the Atlas
-        cout << "Initialization of Atlas from scratch " << endl;
+        // cout << "Initialization of Atlas from scratch " << endl;
         mpAtlas = new Atlas(0);
     }
     else
@@ -187,7 +187,7 @@ System::System(const string &strVocFile, const string &strSettingsFile, const eS
 
     //Initialize the Tracking thread
     //(it will live in the main thread of execution, the one that called this constructor)
-    cout << "Seq. Name: " << strSequence << endl;
+    // cout << "Seq. Name: " << strSequence << endl;
     mpTracker = new Tracking(this, mpVocabulary, mpFrameDrawer, mpMapDrawer,
                              mpAtlas, mpKeyFrameDatabase, strSettingsFile, mSensor, settings_, strSequence);
 
@@ -672,7 +672,7 @@ void System::SaveTrajectoryEuRoC(const string &filename)
     vector<Map*> vpMaps = mpAtlas->GetAllMaps();
     int numMaxKFs = 0;
     Map* pBiggerMap;
-    std::cout << "There are " << std::to_string(vpMaps.size()) << " maps in the atlas" << std::endl;
+    // std::cout << "There are " << std::to_string(vpMaps.size()) << " maps in the atlas" << std::endl;
     for(Map* pMap :vpMaps)
     {
         std::cout << "  Map " << std::to_string(pMap->GetId()) << " has " << std::to_string(pMap->GetAllKeyFrames().size()) << " KFs" << std::endl;

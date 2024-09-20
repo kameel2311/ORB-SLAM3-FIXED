@@ -1862,7 +1862,7 @@ void Tracking::Track()
     if(mState==NO_IMAGES_YET)
     {
         mState = NOT_INITIALIZED;
-        cout << "mState: No images yet -> Not Initlialized" << endl;
+        // cout << "mState: No images yet -> Not Initlialized" << endl;
     }
 
     mLastProcessedState=mState;
@@ -2231,7 +2231,7 @@ void Tracking::Track()
             }
             else if (mbVO && !mbVelocity) // mbVO init to be True and mbVelocity init to be False
             {
-                cout << "mbVO and not mbVelocity: VO Edit" << endl;
+                // cout << "mbVO and not mbVelocity: VO Edit" << endl;
                 mbVelocity = true;
             }
             else {
